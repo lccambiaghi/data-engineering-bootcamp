@@ -78,3 +78,46 @@ Rebuild all tables:
 ## Target
 
 Can check compiled `SQL` code in e.g. `.../target/.../dim_listings_cleansed.sql`
+
+## Sources and seeds
+
+Seeds: 
+- Local files uploaded to data warehouse from dbt
+- They live in the `seed-paths`
+- Can import into data warehouse with `dbt seed`
+- `dbt` automatically infers schema
+
+Sources:
+- Data is already in data warehouse
+- Sources are added to `sources.yml`
+- `dbt compile` will check if references and templates are correct
+
+### Freshness check
+
+Can add freshness check in `sources.yml` and can run with `dbt source freshness`
+
+## Snapshot
+
+### Type-2 slowly changing dimension
+
+Example: e-mails updated
+
+`dbt` adds 2 columns:
+- `dbt_valid_from`
+- `dbt_valid_to`
+
+You can get the recent value by filtering `dbt_valid_to` equal to `null`
+
+### Configuration and strategies
+
+Snapshots live in the `snapshots` folder. Convention: same filename as model + `_snapshots.yml`.
+
+Snaphost engine looks at a column and will automatically compute the two columns.
+
+Strategies:
+- Timestamp: unique key + `updated_at` column (tracked column)
+- Check: if change in monitored columns, new record will be created
+- Macro
+
+Command for snapshot is `dbt snapshot`. Every time we run it, it will update the snapshot table.
+
