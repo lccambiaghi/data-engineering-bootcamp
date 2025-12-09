@@ -11,4 +11,7 @@ dependencies = [
     "pandas>=2.0.0",
     "pyarrow>=14.0.0",
     "dbt-postgres>=1.9.1",
+    "dbt-autofix>=0.17.4",
+    "dagster-dbt>=0.28.4",
+    "dagster-webserver>=1.12.4",
 ]

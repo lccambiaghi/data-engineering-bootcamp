@@ -1,0 +1,3 @@
+dbt-db:5432:airbnb:dbt:dbt
+dbt-db:5432:airbnb:preset:preset
+metastore-db:5432:metastore:hive:hive

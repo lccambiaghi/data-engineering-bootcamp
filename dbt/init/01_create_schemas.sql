@@ -1,6 +1,22 @@
 -- Create schemas for dbt project
 -- This runs automatically when the dbt-db container starts
 
+-- ============================================
+-- Users and Roles (matching Snowflake course)
+-- ============================================
+
+-- Create preset user for BI dashboards (reporter role)
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'preset') THEN
+        CREATE USER preset WITH PASSWORD 'preset';
+    END IF;
+END $$;
+
+-- ============================================
+-- Schemas
+-- ============================================
+
 -- Raw data schema (source data)
 CREATE SCHEMA IF NOT EXISTS raw;
 
@@ -10,10 +26,21 @@ CREATE SCHEMA IF NOT EXISTS dev;
 -- Production schema (optional, for dbt prod target)
 CREATE SCHEMA IF NOT EXISTS prod;
 
--- Grant permissions
+-- ============================================
+-- Permissions for dbt user (TRANSFORM role)
+-- Full access to all schemas
+-- ============================================
 GRANT ALL ON SCHEMA raw TO dbt;
 GRANT ALL ON SCHEMA dev TO dbt;
 GRANT ALL ON SCHEMA prod TO dbt;
+
+-- ============================================
+-- Permissions for preset user (REPORTER role)
+-- Read-only access to dev schema (BI dashboards)
+-- ============================================
+GRANT USAGE ON SCHEMA dev TO preset;
+GRANT SELECT ON ALL TABLES IN SCHEMA dev TO preset;
+ALTER DEFAULT PRIVILEGES IN SCHEMA dev GRANT SELECT ON TABLES TO preset;
 
 -- ============================================
 -- Raw tables matching the course datasets
@@ -59,6 +86,8 @@ CREATE INDEX IF NOT EXISTS idx_reviews_date ON raw.reviews(date);
 -- Log completion
 DO $$
 BEGIN
-    RAISE NOTICE 'Database initialization complete. Schemas: raw, dev, prod';
-    RAISE NOTICE 'Tables created: raw.listings, raw.hosts, raw.reviews';
+    RAISE NOTICE 'Database initialization complete';
+    RAISE NOTICE 'Users: dbt (transform), preset (reporter)';
+    RAISE NOTICE 'Schemas: raw, dev, prod';
+    RAISE NOTICE 'Tables: raw.listings, raw.hosts, raw.reviews';
 END $$;

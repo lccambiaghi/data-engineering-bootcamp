@@ -15,7 +15,7 @@ services:
       - "5433:5432"
     volumes:
       - dbt_data:/var/lib/postgresql/data
-      - ./bootcamp/dbt/init:/docker-entrypoint-initdb.d
+      - ./dbt/init:/docker-entrypoint-initdb.d
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U dbt -d airbnb"]
       interval: 5s
@@ -97,7 +97,30 @@ services:
     shm_size: '2g'
     restart: unless-stopped
 
+  # ============================================
+  # Database Explorer (pgAdmin)
+  # ============================================
+  
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: "False"
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
+      - ./pgadmin/pgpass:/pgadmin4/pgpass:ro
+    depends_on:
+      - dbt-db
+      - metastore-db
+
 volumes:
   spark-warehouse:
   metastore_data:
   dbt_data:
+  pgadmin_data:

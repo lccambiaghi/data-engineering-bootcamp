@@ -8,3 +8,10 @@ model-paths: ["models"]
 seed-paths: ["seeds"]
 snapshot-paths: ["snapshots"]
 macro-paths: ["macros"]
+
+clean-targets:
+  - 'target'
+  - 'dbt_packages'
+
+models:
+  airbnb:

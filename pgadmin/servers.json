@@ -1,0 +1,34 @@
+{
+  "Servers": {
+    "1": {
+      "Name": "Airbnb (dbt user)",
+      "Group": "Servers",
+      "Host": "dbt-db",
+      "Port": 5432,
+      "MaintenanceDB": "airbnb",
+      "Username": "dbt",
+      "PassFile": "/pgadmin4/pgpass",
+      "SSLMode": "prefer"
+    },
+    "2": {
+      "Name": "Airbnb (preset user - BI)",
+      "Group": "Servers",
+      "Host": "dbt-db",
+      "Port": 5432,
+      "MaintenanceDB": "airbnb",
+      "Username": "preset",
+      "PassFile": "/pgadmin4/pgpass",
+      "SSLMode": "prefer"
+    },
+    "3": {
+      "Name": "Hive Metastore",
+      "Group": "Servers",
+      "Host": "metastore-db",
+      "Port": 5432,
+      "MaintenanceDB": "metastore",
+      "Username": "hive",
+      "PassFile": "/pgadmin4/pgpass",
+      "SSLMode": "prefer"
+    }
+  }
+}
