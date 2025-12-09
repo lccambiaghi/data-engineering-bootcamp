@@ -9,17 +9,22 @@ This provides:
     - display(): Renders DataFrames as HTML tables in Jupyter
     - dbutils: Mock with fs.ls() and other common utilities
     - spark: Pre-configured SparkSession with Delta Lake
+    - %sql / %%sql: Cell magic for SQL queries (auto-registered on import)
 """
 
 from pathlib import Path
 from typing import Any, Optional
 
+from IPython.core.magic import Magics, cell_magic, line_magic, magics_class
 from IPython.display import HTML, display as ipy_display
 from pyspark.sql import DataFrame, SparkSession
 
 
 def init_spark(app_name: str = "LearnSpark") -> SparkSession:
-    """Initialize a SparkSession with Delta Lake support."""
+    """Initialize a SparkSession with Delta Lake support and shared metastore."""
+    # Use same warehouse path as Hive Metastore (both containers mount same volume here)
+    warehouse_dir = "/opt/hive/data/warehouse"
+    
     return (
         SparkSession.builder.appName(app_name)
         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
@@ -27,6 +32,10 @@ def init_spark(app_name: str = "LearnSpark") -> SparkSession:
             "spark.sql.catalog.spark_catalog",
             "org.apache.spark.sql.delta.catalog.DeltaCatalog",
         )
+        .config("spark.sql.warehouse.dir", warehouse_dir)
+        # Connect to Hive Metastore Service via Thrift (shared across all notebooks)
+        .config("spark.hadoop.hive.metastore.uris", "thrift://hive-metastore:9083")
+        .enableHiveSupport()
         .getOrCreate()
     )
 
@@ -155,14 +164,18 @@ class _DbUtilsFs:
                     print(f"   Run: make download-datasets")
                 # Keep the path structure: /databricks-datasets/X -> data/databricks-datasets/X
                 return Path(self.base_path) / path.lstrip("/")
+            # Map /user/hive/warehouse to Hive warehouse folder (shared volume)
+            if path.startswith("/user/hive/warehouse"):
+                remainder = path[len("/user/hive/warehouse"):].lstrip("/")
+                return Path("/opt/hive/data/warehouse") / remainder
             return Path(self.base_path).parent / path.lstrip("/")
         return Path(self.base_path) / path
 
-    def ls(self, path: str) -> list[dict]:
+    def ls(self, path: str) -> list:
         """
         List files in a directory (like dbutils.fs.ls).
 
-        Returns list of FileInfo-like dicts with: path, name, size, modificationTime
+        Returns list of FileInfo objects with: path, name, size, modificationTime
         """
         resolved = self._resolve_path(path)
 
@@ -179,8 +192,6 @@ class _DbUtilsFs:
                 "modificationTime": int(stat.st_mtime * 1000),
             }
             results.append(type("FileInfo", (), info)())
-            # Print in Databricks style
-            print(f"FileInfo(path='{info['path']}', name='{info['name']}', size={info['size']})")
 
         return results
 
@@ -231,3 +242,160 @@ class _DbUtils:
 
 
 dbutils = _DbUtils()
+
+
+# =============================================================================
+# SQL Magic Support
+# =============================================================================
+
+@magics_class
+class SparkSQLMagic(Magics):
+    """
+    IPython magic for executing Spark SQL queries.
+    
+    Usage:
+        %sql SELECT * FROM table LIMIT 10
+        
+        %%sql
+        SELECT *
+        FROM table
+        WHERE condition
+        LIMIT 10
+    """
+
+    @line_magic
+    def sql(self, line: str) -> None:
+        """Execute a single-line SQL query."""
+        self._execute_sql(line)
+
+    @cell_magic
+    def sql(self, line: str, cell: str) -> None:  # noqa: F811
+        """Execute a multi-line SQL query."""
+        # Combine line and cell content (line may have options in the future)
+        query = cell.strip()
+        self._execute_sql(query)
+
+    def _execute_sql(self, query: str) -> None:
+        """Execute SQL query and display results."""
+        if not query.strip():
+            print("Empty SQL query")
+            return
+        
+        try:
+            spark_session = get_spark()
+            result_df = spark_session.sql(query)
+            display(result_df)
+        except Exception as e:
+            print(f"SQL Error: {e}")
+
+
+def _display_file_info(file_infos: list) -> None:
+    """Display FileInfo results as an HTML table (Databricks-style)."""
+    if not file_infos:
+        print("(empty directory)")
+        return
+
+    # Build HTML table matching Databricks style
+    rows_html = ""
+    for info in file_infos:
+        rows_html += f"""
+            <tr>
+                <td>{info.path}</td>
+                <td>{info.name}</td>
+                <td>{info.size}</td>
+                <td>{info.modificationTime}</td>
+            </tr>"""
+
+    styled_html = f"""
+    <style>
+        .fs-table {{ 
+            border-collapse: collapse; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 13px;
+        }}
+        .fs-table th {{ 
+            background-color: #f5f5f5; 
+            border: 1px solid #ddd; 
+            padding: 8px 12px;
+            text-align: left;
+            font-weight: 600;
+        }}
+        .fs-table td {{ 
+            border: 1px solid #ddd; 
+            padding: 8px 12px;
+        }}
+        .fs-table tr:nth-child(even) {{ background-color: #fafafa; }}
+        .fs-table tr:hover {{ background-color: #f0f0f0; }}
+    </style>
+    <table class="fs-table">
+        <thead>
+            <tr>
+                <th>path</th>
+                <th>name</th>
+                <th>size</th>
+                <th>modificationTime</th>
+            </tr>
+        </thead>
+        <tbody>{rows_html}
+        </tbody>
+    </table>
+    """
+    ipy_display(HTML(styled_html))
+
+
+@magics_class
+class DbFsMagic(Magics):
+    """
+    IPython magic for Databricks filesystem operations.
+    
+    Usage:
+        %fs ls /path/to/dir
+        %fs head /path/to/file
+    """
+
+    @line_magic
+    def fs(self, line: str) -> None:
+        """Execute a filesystem command."""
+        parts = line.strip().split(None, 1)
+        if not parts:
+            print("Usage: %fs <command> [path]")
+            print("Commands: ls, head, mkdirs, rm")
+            return
+        
+        cmd = parts[0].lower()
+        path = parts[1] if len(parts) > 1 else "/"
+        
+        try:
+            if cmd == "ls":
+                results = dbutils.fs.ls(path)
+                _display_file_info(results)
+            elif cmd == "head":
+                print(dbutils.fs.head(path))
+            elif cmd == "mkdirs":
+                dbutils.fs.mkdirs(path)
+                print(f"Created: {path}")
+            elif cmd == "rm":
+                dbutils.fs.rm(path)
+                print(f"Removed: {path}")
+            else:
+                print(f"Unknown command: {cmd}")
+                print("Available: ls, head, mkdirs, rm")
+        except Exception as e:
+            print(f"FS Error: {e}")
+
+
+def register_magics() -> None:
+    """Register all Databricks-compatible magics with IPython."""
+    try:
+        from IPython import get_ipython
+        ipython = get_ipython()
+        if ipython is not None:
+            ipython.register_magics(SparkSQLMagic)
+            ipython.register_magics(DbFsMagic)
+    except (ImportError, AttributeError):
+        # Not running in IPython/Jupyter
+        pass
+
+
+# Auto-register magics when module is imported
+register_magics()

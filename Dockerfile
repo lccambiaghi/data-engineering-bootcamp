@@ -13,9 +13,21 @@ RUN cd /tmp && \
     curl -fsSLO https://repo1.maven.org/maven2/io/delta/delta-storage/3.2.0/delta-storage-3.2.0.jar && \
     mv delta-*.jar ${SPARK_HOME}/jars/
 
-# Configure Spark for Delta Lake (no package downloads needed)
+# Download Hadoop AWS JARs for S3 access (allows reading from public S3 URLs)
+RUN cd /tmp && \
+    curl -fsSLO https://repo1.maven.org/maven2/org/apache/hadoop/hadoop-aws/3.3.4/hadoop-aws-3.3.4.jar && \
+    curl -fsSLO https://repo1.maven.org/maven2/com/amazonaws/aws-java-sdk-bundle/1.12.262/aws-java-sdk-bundle-1.12.262.jar && \
+    mv hadoop-aws-*.jar aws-java-sdk-*.jar ${SPARK_HOME}/jars/
+
+# Download PostgreSQL JDBC driver for shared metastore
+RUN cd /tmp && \
+    curl -fsSLO https://jdbc.postgresql.org/download/postgresql-42.7.1.jar && \
+    mv postgresql-*.jar ${SPARK_HOME}/jars/
+
+# Configure Spark for Delta Lake and S3 access
 RUN echo 'spark.sql.extensions io.delta.sql.DeltaSparkSessionExtension' >> ${SPARK_HOME}/conf/spark-defaults.conf \
-    && echo 'spark.sql.catalog.spark_catalog org.apache.spark.sql.delta.catalog.DeltaCatalog' >> ${SPARK_HOME}/conf/spark-defaults.conf
+    && echo 'spark.sql.catalog.spark_catalog org.apache.spark.sql.delta.catalog.DeltaCatalog' >> ${SPARK_HOME}/conf/spark-defaults.conf \
+    && echo 'spark.hadoop.fs.s3a.aws.credentials.provider org.apache.hadoop.fs.s3a.AnonymousAWSCredentialsProvider' >> ${SPARK_HOME}/conf/spark-defaults.conf
 
 # Create workspace directories
 RUN mkdir -p /home/jovyan/work/notebooks /home/jovyan/work/data \

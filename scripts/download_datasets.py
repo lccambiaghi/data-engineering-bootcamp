@@ -45,6 +45,17 @@ DATASETS = {
     "samples": {
         "create": True,
     },
+    # NYC Taxi sample data (from ClickHouse public datasets)
+    # Small sample ~1M rows per file, TSV format
+    "nyctaxi": {
+        "files": [
+            {
+                "url": "https://datasets-documentation.s3.eu-west-3.amazonaws.com/nyc-taxi/trips_0.gz",
+                "name": "tripdata/yellow/yellow_tripdata_sample.tsv.gz",
+            },
+        ],
+        "nested": True,  # Create nested directory structure
+    },
 }
 
 
@@ -111,7 +122,10 @@ def download_dataset(name: str, config: dict) -> None:
     if "files" in config:
         dest.mkdir(parents=True, exist_ok=True)
         for file_info in config["files"]:
-            download_file(file_info["url"], dest / file_info["name"])
+            file_path = dest / file_info["name"]
+            # Create nested directories if needed
+            file_path.parent.mkdir(parents=True, exist_ok=True)
+            download_file(file_info["url"], file_path)
         return
 
     if "url" in config:
