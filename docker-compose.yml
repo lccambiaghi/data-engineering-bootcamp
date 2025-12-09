@@ -1,4 +1,31 @@
 services:
+  # ============================================
+  # DBT + PostgreSQL Services (Airbnb project)
+  # ============================================
+  
+  # PostgreSQL database for dbt project
+  dbt-db:
+    image: postgres:15-alpine
+    container_name: dbt-db
+    environment:
+      POSTGRES_USER: dbt
+      POSTGRES_PASSWORD: dbt
+      POSTGRES_DB: airbnb
+    ports:
+      - "5433:5432"
+    volumes:
+      - dbt_data:/var/lib/postgresql/data
+      - ./bootcamp/dbt/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dbt -d airbnb"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Spark + Delta Lake Services
+  # ============================================
+  
   # PostgreSQL for Hive Metastore backend
   metastore-db:
     image: postgres:15-alpine
@@ -73,3 +100,4 @@ services:
 volumes:
   spark-warehouse:
   metastore_data:
+  dbt_data:

@@ -1,0 +1,15 @@
+# dbt profiles.yml - Local PostgreSQL configuration
+# This replaces the Snowflake configuration from the Udemy course
+
+airbnb:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: localhost  # Use 'dbt-db' if running dbt inside Docker
+      port: 5433       # Mapped port from docker-compose
+      user: dbt
+      password: dbt
+      dbname: airbnb
+      schema: dev
+      threads: 4
