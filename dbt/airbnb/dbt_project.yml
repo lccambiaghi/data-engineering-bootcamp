@@ -15,3 +15,11 @@ clean-targets:
 
 models:
   airbnb:
+    # Default materialization is view
+    +materialized: view
+    src:
+      # Staging layer is ephemeral (no references)
+      +materialized: ephemeral
+    dim:
+      # Dimensions default to table (referenced often)
+      +materialized: table
