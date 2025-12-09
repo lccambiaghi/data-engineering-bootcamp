@@ -1,0 +1,47 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv
+venv
+ENV
+env
+.eggs
+*.egg-info
+*.egg
+
+# IDE
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.envrc
+
+# UV/pip
+uv.lock
+.uv
+
+# Jupyter checkpoints
+.ipynb_checkpoints
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+dist
+build
+
+# Plan files
+*.plan.md
+

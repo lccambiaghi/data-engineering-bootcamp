@@ -1,0 +1,34 @@
+services:
+  spark-jupyter:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: data-engineering-bootcamp:latest
+    container_name: data-engineering-bootcamp
+    ports:
+      # Jupyter Notebook
+      - "8888:8888"
+      # Spark UI (available when Spark job is running)
+      - "4040:4040"
+    volumes:
+      # Mount notebooks directory
+      - ./notebooks:/home/jovyan/work/notebooks
+      # Mount data directory
+      - ./data:/home/jovyan/work/data
+      # Mount Python source code for development
+      - ./bootcamp:/home/jovyan/work/bootcamp
+      # Mount any standalone scripts
+      - ./main.py:/home/jovyan/work/main.py
+      # Persist Spark warehouse (for Delta tables)
+      - spark-warehouse:/home/jovyan/work/spark-warehouse
+    environment:
+      - SPARK_LOCAL_DIRS=/tmp/spark
+      - SPARK_WORKER_DIR=/tmp/spark-worker
+      - PYTHONPATH=/home/jovyan/work
+    # Increase shared memory for Spark
+    shm_size: '2g'
+    restart: unless-stopped
+
+volumes:
+  spark-warehouse:
+

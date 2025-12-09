@@ -1,0 +1,23 @@
+{
+  "name": "Data Engineering Bootcamp",
+  "dockerComposeFile": "../docker-compose.yml",
+  "service": "spark-jupyter",
+  "workspaceFolder": "/home/jovyan/work",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-toolsai.jupyter"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/conda/bin/python",
+        "python.analysis.extraPaths": ["/home/jovyan/work"],
+        "jupyter.notebookFileRoot": "/home/jovyan/work/notebooks"
+      }
+    }
+  },
+  "forwardPorts": [8888, 4040],
+  "postStartCommand": "echo 'Spark environment ready! Jupyter at http://localhost:8888'"
+}
+
