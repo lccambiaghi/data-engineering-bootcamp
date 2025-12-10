@@ -14,4 +14,9 @@ dependencies = [
     "dbt-autofix>=0.17.4",
     "dagster-dbt>=0.28.4",
     "dagster-webserver>=1.12.4",
+    "dagster>=1.12.4",
 ]
+
+[tool.dagster]
+module_name = "dagster_airbnb.definitions"
+code_location_name = "dagster_airbnb"

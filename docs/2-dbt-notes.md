@@ -198,3 +198,45 @@ curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --upda
 It can be run with `~/.local/bin/dbt run`. NOTE that it does not yet support `postgres`.
 
 Can use `dbt-autfoix deprecations` to automatically fix deprecations.
+
+## Dagster Integration
+
+Dagster is an orchestrator that can manage dbt projects as assets.
+
+### Setup
+
+1. Scaffold a Dagster project for your dbt project:
+   ```bash
+   cd dbt
+   dagster-dbt project scaffold --project-name dagster_airbnb --dbt-project-dir=airbnb
+   ```
+
+2. Move the generated Python package to your project root (to avoid a separate `pyproject.toml`):
+   ```bash
+   mv dbt/dagster_airbnb/dagster_airbnb .
+   rm -rf dbt/dagster_airbnb
+   ```
+
+3. Add Dagster config to your existing `pyproject.toml`:
+   ```toml
+   [tool.dagster]
+   module_name = "dagster_airbnb.definitions"
+   code_location_name = "dagster_airbnb"
+   ```
+
+4. Update the paths in `dagster_airbnb/project.py` to point to the correct dbt location.
+
+5. Uncomment the schedules in `schedules.py`
+
+### Running Dagster
+
+Start the Dagster web UI:
+```bash
+uv run dagster dev
+```
+
+The web UI is available at http://127.0.0.1:3000
+
+### Cool features
+
+- Can select models (shift+click) and materialize specific models

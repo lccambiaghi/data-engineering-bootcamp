@@ -2,6 +2,5 @@
 {{ config(severity = 'warn') }}
 
 SELECT COUNT(*) FROM {{ model }}
-FROM {{ model }}
 HAVING COUNT(*) < {{ min_row_count }}
 {% endtest %}
