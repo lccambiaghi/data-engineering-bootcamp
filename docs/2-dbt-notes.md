@@ -184,3 +184,17 @@ In the dbt hub there are a lot of third-party packages that help with auditing.
 ## Grants
 
 Can assign `select` grant to different roles, for the different models
+
+## DBT Fusion
+
+DBT engine rewritten in Rust, handles parsing and compilation much faster.
+
+It should be installed as a system package (not within the `venv`) with
+
+```
+curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+```
+
+It can be run with `~/.local/bin/dbt run`. NOTE that it does not yet support `postgres`.
+
+Can use `dbt-autfoix deprecations` to automatically fix deprecations.

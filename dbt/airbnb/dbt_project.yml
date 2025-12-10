@@ -15,10 +15,7 @@ clean-targets:
 
 # define hooks
 on-run-start:
-  - "CREATE TABLE IF NOT EXISTS {{ target.schema }}.audit_log (
-      model_name TEXT,
-      run_timestamp TIMESTAMP
-    )"
+  - "CREATE TABLE IF NOT EXISTS {{ target.schema }}.audit_log ( model_name TEXT, run_timestamp TIMESTAMP )"
 
 models:
   airbnb:
@@ -38,3 +35,5 @@ models:
 data_tests:
   +store_failures: true
   +schema: _test_failures
+flags:
+  require_generic_test_arguments_property: true
