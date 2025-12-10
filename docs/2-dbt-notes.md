@@ -153,3 +153,15 @@ Can save test failures in an audit table.
 ## Data contracts
 
 Can define contracts in `schema.yml` and set contract enforced.
+
+## DBT packages
+
+- Find them on hub.dbt.com
+- Add them to `packages.yml`.
+- Remember to run `dbt run --full-refresh` if the schema changes.
+
+## Documentation
+
+- Docs can be defined in yaml files (e.g. `schema.yml`) or in markdown files
+- Can build with `dbt docs generate`, found in `target`
+- DBT ships with a lightweight documentation web server, which can be started with `dbt docs serve`
