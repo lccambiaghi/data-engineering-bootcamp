@@ -19,4 +19,19 @@ models:
           - accepted_values:
               arguments:
                 values: ['Entire home/apt', 'Private room', 'Shared room', 'Hotel room']
-                  
+       
+  - name: dim_hosts_cleansed
+    config:
+      contract:
+        enforced: true
+    columns:
+      - name: host_id
+        data_type: bigint
+      - name: host_name
+        data_type: string
+      - name: is_superhost
+        data_type: string
+      - name: created_at
+        data_type: timestamp
+      - name: updated_at
+        data_type: timestamp

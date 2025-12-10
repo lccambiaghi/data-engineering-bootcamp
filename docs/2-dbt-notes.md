@@ -146,3 +146,7 @@ Debugging:
 - You can execute the query and see which are the values breaking the tests
 
 Can save test failures in an audit table.
+
+## Data contracts
+
+Can define contracts in `schema.yml` and set contract enforced.
