@@ -23,3 +23,7 @@ models:
     dim:
       # Dimensions default to table (referenced often)
       +materialized: table
+
+data_tests:
+  +store_failures: true
+  +schema: _test_failures

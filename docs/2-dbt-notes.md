@@ -121,3 +121,28 @@ Strategies:
 
 Command for snapshot is `dbt snapshot`. Every time we run it, it will update the snapshot table.
 
+## Tests
+
+Unit tests:
+ - Test transformations with mock data
+ - Typically next to the model
+
+Data tests:
+- Generic: available plug&play
+  - unique
+  - not_null
+  - accepted_values
+  - relationships (foreign keys)
+- Singular:
+  - SQL query in `tests` folder
+  - If any record is returned, test will fail
+- Can import tests
+
+Can run tests with `dbt test`. 
+
+Debugging:
+- With `dbt test -x` it will stop at first failure
+- You can look at compiled test
+- You can execute the query and see which are the values breaking the tests
+
+Can save test failures in an audit table.
