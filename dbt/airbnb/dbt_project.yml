@@ -13,8 +13,19 @@ clean-targets:
   - 'target'
   - 'dbt_packages'
 
+# define hooks
+on-run-start:
+  - "CREATE TABLE IF NOT EXISTS {{ target.schema }}.audit_log (
+      model_name TEXT,
+      run_timestamp TIMESTAMP
+    )"
+
 models:
   airbnb:
+    # +grants:
+      # select: ["transform", "reporter"]
+    +post-hook:
+      - "INSERT INTO {{ target.schema }}.audit_log VALUES ('{{ this }}', CURRENT_TIMESTAMP)"
     # Default materialization is view
     +materialized: view
     src:

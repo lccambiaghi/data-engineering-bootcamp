@@ -165,3 +165,22 @@ Can define contracts in `schema.yml` and set contract enforced.
 - Docs can be defined in yaml files (e.g. `schema.yml`) or in markdown files
 - Can build with `dbt docs generate`, found in `target`
 - DBT ships with a lightweight documentation web server, which can be started with `dbt docs serve`
+
+## Analyses
+
+Useful to execute SQL queries leveraging `dbt` models and macros.
+You can run `dbt compile`, take the query from the `target/compiled` and execute it on the DB.
+
+## Hooks
+
+SQL that are executed at pre-defined times, examples:
+- `on_run_start`
+- `on_run_end`
+- `pre-hook`
+- `post-hook`: after a model or seed or snapshot is materialized
+
+In the dbt hub there are a lot of third-party packages that help with auditing.
+
+## Grants
+
+Can assign `select` grant to different roles, for the different models
