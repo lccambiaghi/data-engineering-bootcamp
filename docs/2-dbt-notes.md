@@ -136,6 +136,9 @@ Data tests:
 - Singular:
   - SQL query in `tests` folder
   - If any record is returned, test will fail
+- Custom generic tests:
+  - Define them `tests/generic`
+  - Apply them to models in `schema.yml`
 - Can import tests
 
 Can run tests with `dbt test`. 
