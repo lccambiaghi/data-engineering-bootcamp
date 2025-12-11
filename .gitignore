@@ -20,3 +20,5 @@ dbt/**/logs/
 dbt/**/.user.yml
 dbt/**/dbt_packages/
 dbt/**/dbt_internal_packages/
+dbt/**/*.duckdb
+dbt/**/*.duckdb.wal

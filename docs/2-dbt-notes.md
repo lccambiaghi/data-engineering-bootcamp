@@ -248,4 +248,6 @@ The web UI is available at http://127.0.0.1:3000
   - Source A is hourly partitioned
   - Source B is daily paritioned
   - You want to run pipeline when both are fresh
-- 
+
+- blog post: https://georgheiler.com/post/dbt-duckdb-production/
+- Example repo: https://github.com/l-mds/demo-dbt-duckdb-delta-plugin

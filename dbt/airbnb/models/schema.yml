@@ -42,9 +42,9 @@ models:
       - name: host_id
         data_type: bigint
       - name: host_name
-        data_type: string
+        data_type: varchar
       - name: is_superhost
-        data_type: string
+        data_type: boolean
       - name: created_at
         data_type: timestamp
       - name: updated_at

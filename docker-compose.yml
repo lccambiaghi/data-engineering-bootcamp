@@ -1,28 +1,5 @@
 services:
   # ============================================
-  # DBT + PostgreSQL Services (Airbnb project)
-  # ============================================
-  
-  # PostgreSQL database for dbt project
-  dbt-db:
-    image: postgres:15-alpine
-    container_name: dbt-db
-    environment:
-      POSTGRES_USER: dbt
-      POSTGRES_PASSWORD: dbt
-      POSTGRES_DB: airbnb
-    ports:
-      - "5433:5432"
-    volumes:
-      - dbt_data:/var/lib/postgresql/data
-      - ./dbt/init:/docker-entrypoint-initdb.d
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U dbt -d airbnb"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  # ============================================
   # Spark + Delta Lake Services
   # ============================================
   
@@ -116,11 +93,9 @@ services:
       - ./pgadmin/servers.json:/pgadmin4/servers.json:ro
       - ./pgadmin/pgpass:/pgadmin4/pgpass:ro
     depends_on:
-      - dbt-db
       - metastore-db
 
 volumes:
   spark-warehouse:
   metastore_data:
-  dbt_data:
   pgadmin_data:

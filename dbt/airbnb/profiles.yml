@@ -1,15 +1,13 @@
-# dbt profiles.yml - Local PostgreSQL configuration
-# This replaces the Snowflake configuration from the Udemy course
+# dbt profiles.yml - DuckDB configuration
+# Modern local data stack: DuckDB replaces PostgreSQL for faster transformations
 
 airbnb:
   target: dev
   outputs:
     dev:
-      type: postgres
-      host: localhost  # Use 'dbt-db' if running dbt inside Docker
-      port: 5433       # Mapped port from docker-compose
-      user: dbt
-      password: dbt
-      dbname: airbnb
-      schema: dev
+      type: duckdb
+      path: "{{ env_var('DBT_DUCKDB_PATH', 'airbnb.duckdb') }}"
+      schema: main
       threads: 4
+      plugins:
+        - module: delta  # enables reading Delta tables as sources

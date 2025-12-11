@@ -15,7 +15,7 @@ clean-targets:
 
 # define hooks
 on-run-start:
-  - "CREATE TABLE IF NOT EXISTS {{ target.schema }}.audit_log ( model_name TEXT, run_timestamp TIMESTAMP )"
+  - "CREATE TABLE IF NOT EXISTS {{ target.schema }}.audit_log (model_name VARCHAR, run_timestamp TIMESTAMP)"
 
 models:
   airbnb:
