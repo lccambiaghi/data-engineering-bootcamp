@@ -240,3 +240,12 @@ The web UI is available at http://127.0.0.1:3000
 ### Cool features
 
 - Can select models (shift+click) and materialize specific models
+
+### dagster + dbt + duckDB
+
+- DuckDB SQL extensions: https://duckdb.org/2022/05/04/friendlier-sql
+- Example:
+  - Source A is hourly partitioned
+  - Source B is daily paritioned
+  - You want to run pipeline when both are fresh
+- 
