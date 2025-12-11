@@ -40,7 +40,7 @@ services:
     ports:
       - "9083:9083"
     volumes:
-      - spark-warehouse:/opt/hive/data/warehouse
+      - ./data/hive-warehouse:/opt/hive/data/warehouse
     healthcheck:
       test: ["CMD", "bash", "-c", "cat < /dev/null > /dev/tcp/localhost/9083"]
       interval: 10s
@@ -66,7 +66,7 @@ services:
       - ./bootcamp:/home/jovyan/work/bootcamp
       - ./main.py:/home/jovyan/work/main.py
       # Mount warehouse at same path as Hive so metastore paths work
-      - spark-warehouse:/opt/hive/data/warehouse
+      - ./data/hive-warehouse:/opt/hive/data/warehouse
     environment:
       - SPARK_LOCAL_DIRS=/tmp/spark
       - SPARK_WORKER_DIR=/tmp/spark-worker
@@ -96,6 +96,5 @@ services:
       - metastore-db
 
 volumes:
-  spark-warehouse:
   metastore_data:
   pgadmin_data:
